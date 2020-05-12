@@ -20,5 +20,5 @@ data layer to be added to vector layer
 4. Upon successful completion of WFS request, add the features
 returned by the WFS request to the vector layer
 
-B. Krepp, attending metaphysician
+B. Krepp, attending metaphysician  
 11 May 2020
