@@ -21,4 +21,4 @@ data layer to be added to vector layer
 returned by the WFS request to the vector layer
 
 B. Krepp, attending metaphysician  
-11 May 2020
+11 May 2020, 5 June 2020
