@@ -7,6 +7,11 @@
 // The vector layer is styled:
 //      * 3px blue border ("stroke"), complety opaque
 //      * red "fill", 50% opaque
+// The vector layer is labeled with the town name in 10px black font.
+// See the code for additional details on the styling of the labels for 
+// the vector features.
+// Note: See https://openlayers.org/en/latest/examples/vector-labels.html
+//       for a demo of labeling OpenLayers vector features
 //
 // Make WFS request for features to be added to vector layer
 //
@@ -75,11 +80,71 @@ var oBaseLayer = new ol.layer.Tile({
 // Define OpenLayers vector layer - will overlay the base layer
 //
 var oHighlightLayer = new ol.layer.Vector({source: new ol.source.Vector({ wrapX: false }) });
-// Define style for vector layer, and set the vector layer's style to it
-var myVectorStyle = new ol.style.Style({ fill	: new ol.style.Fill({ color: 'rgba(255,0,0,0.5)' }), 
-                                         stroke : new ol.style.Stroke({ color: 'rgba(0,0,255,1.0)', width: 3.0})
-                                       });
-oHighlightLayer.setStyle(myVectorStyle);
+
+// Max map resolution at which to label vector features.
+var maxResolutionForLabelingVectorFeatures = 1200;   
+
+// Our function to return text to label vector features
+//
+// Unabashedly borrowed from https://openlayers.org/en/latest/examples/vector-labels.html,
+// and subsequently morphed for our purposes.
+//
+var getText = function(feature, resolution) {
+  var maxResolution = maxResolutionForLabelingVectorFeatures;
+  var text = feature.get('town');
+  if (resolution > maxResolution) {
+    text = '';
+  }
+  return text;
+};
+
+// Our createTextStyle function for labeling the vector layer
+//
+// Unabashedly borrowed from https://openlayers.org/en/latest/examples/vector-labels.html,
+// and subsequently morphed for our purposes.
+//
+var createTextStyle = function(feature, resolution) {
+  var align = 'center';
+  var baseline = 'middle';
+  var size = '10px';
+  var height = 1;
+  var offsetX = 0;
+  var offsetY = 10;     // Displace by 10px "south", so the label from the WMS layer is also visible.
+  var weight = 'normal';
+  var placement = 'point';
+  var maxAngle = 45;
+  var overflow = 'true'; 
+  var rotation = 0;
+  var font = weight + ' ' + size + '/' + height + ' ' + 'Arial';
+  var fillColor = 'black';      // Color of label TEXT itself
+  var outlineColor = 'white';   // Color of label OUTLINE
+  var outlineWidth = 0;
+
+  return new ol.style.Text({
+    textAlign: align,
+    textBaseline: baseline,
+    font: font,
+    text: getText(feature, resolution),
+    fill: new ol.style.Fill({color: fillColor}),
+    stroke: new ol.style.Stroke({color: outlineColor, width: outlineWidth}),
+    offsetX: offsetX,
+    offsetY: offsetY,
+    placement: placement,
+    maxAngle: maxAngle,
+    overflow: overflow,
+    rotation: rotation
+  });
+};
+
+// Define function to style our polygon vector layer, and set the vector layer's style to use it
+function myVectorPolygonStyleFunction(feature, resolution) {
+    return new ol.style.Style({ stroke: new ol.style.Stroke({ color: 'rgba(0,0,255,1.0)', width: 3.0}),
+                                fill:   new ol.style.Fill({ color: 'rgba(255,0,0,0.5)' }),
+                                text:   createTextStyle(feature, resolution)
+                              });
+}
+oHighlightLayer.setStyle(myVectorPolygonStyleFunction);
+
 
 // Define OpenLayers map object
 // Noe that the vector layer appears after the base layer in the 'layers's array
