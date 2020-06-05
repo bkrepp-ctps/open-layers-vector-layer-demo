@@ -19,7 +19,7 @@
 //     returned by the WFS request to the vector layer
 //
 // B. Krepp, attending metaphysician
-// 11 May 2020, 5 June 2020
+// 11 May 2020
 
 var szServerRoot = location.protocol + '//' + location.hostname + '/maploc/';  
 var szWMSserverRoot = szServerRoot + '/wms'; 
@@ -145,6 +145,29 @@ function myVectorPolygonStyleFunction(feature, resolution) {
 }
 oHighlightLayer.setStyle(myVectorPolygonStyleFunction);
 
+// The stuff to support the 'popup':
+//
+// Elements that make up the popup:
+var container = document.getElementById('popup');
+var content = document.getElementById('popup-content');
+var closer = document.getElementById('popup-closer');
+
+// Create an overlay to anchor the popup to the map:
+var overlay = new ol.Overlay({
+  element: container,
+  autoPan: true,
+  autoPanAnimation: {
+    duration: 250
+  }
+});
+
+// Add a click handler to hide the popup:
+closer.onclick = function() {
+  overlay.setPosition(undefined);
+  closer.blur();
+  return false;
+};
+
 
 // Define OpenLayers map object
 // Noe that the vector layer appears after the base layer in the 'layers's array
@@ -153,11 +176,40 @@ var map = new ol.Map({  target: 'map',
                         layers: [ oBaseLayer,
                                   oHighlightLayer
                                 ],
+                        overlays: [overlay],                        // Note: This is new.
                         view: new ol.View({ projection: projection,
                                             center	: mapCenter,
                                             zoom	:mapZoom
                         })
                     });
+                    
+// *** New code to support the on-hover/click interaction.
+// *** With thanks to https://gis.stackexchange.com/questions/202473/openlayers3-add-click-hover-action-on-ol-layer-vector
+var hoverInteraction = new ol.interaction.Select({
+    condition: ol.events.condition.pointerMove,
+    layers:[oHighlightLayer]  // Set layers to be hovered
+});
+map.addInteraction(hoverInteraction);
+
+map.on('singleclick', function(evt) {
+    var feature = map.forEachFeatureAtPixel(evt.pixel, function(feature, layer) {
+        // Here you can add a condition on layer to restrict the listener
+        return feature;
+        });
+    if (feature) {
+        // Here you can add code to display a popup or whatever
+        var _DEBUG_HOOK = 0;
+        var props = feature.getProperties();
+        var s = 'You clicked on ' + props['town'] + '.';
+        console.log(s);
+        var coordinate = evt.coordinate;
+        content.innerHTML = '<p>' + s + '</p>';
+        overlay.setPosition(coordinate);
+    }
+});
+
+
+// *** Old code below this point
 
 // Issue WFS request for all towns in MassGIS TOWNSSURVEY_POLYM with
 // a town_id attribute < 10
