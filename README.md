@@ -14,10 +14,16 @@ Steps:
 * 3px blue border ("stroke"), complety opaque
 * red "fill", 50% opaque
 
-3. Make WFS request for features from MassGIS TOWNSSURVEY_POLYM
+3. Features in the vector layer is labeled with the 'town' attribute of the feature
+
+4. An 'on-pointermove' (i.e., 'on-hover') event handler for the vector layer
+is created that dispalys a "popup" (an OL "overlay") when the mouse hovers over 
+any feature in the vector layer
+
+5. Make WFS request for features from MassGIS TOWNSSURVEY_POLYM
 data layer to be added to vector layer
 
-4. Upon successful completion of WFS request, add the features
+6. Upon successful completion of WFS request, add the features
 returned by the WFS request to the vector layer
 
 B. Krepp, attending metaphysician  
