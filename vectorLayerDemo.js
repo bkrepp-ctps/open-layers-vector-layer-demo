@@ -7,11 +7,16 @@
 // The vector layer is styled:
 //      * 3px blue border ("stroke"), complety opaque
 //      * red "fill", 50% opaque
-// The vector layer is labeled with the town name in 10px black font.
+//
+// The vector layer is also labeled with the town name in 10px black font.
 // See the code for additional details on the styling of the labels for 
 // the vector features.
 // Note: See https://openlayers.org/en/latest/examples/vector-labels.html
 //       for a demo of labeling OpenLayers vector features
+//
+// This demo also supports an 'on-pointermove' (i.e., 'on-hover') event handler
+// that displays a "popup" (an OL "overlay") when the mouse hovers over 
+// any feature in the vector layer.
 //
 // Make WFS request for features to be added to vector layer
 //
@@ -19,7 +24,7 @@
 //     returned by the WFS request to the vector layer
 //
 // B. Krepp, attending metaphysician
-// 11 May 2020
+// 11 May 2020, 5 June 2020
 
 var szServerRoot = location.protocol + '//' + location.hostname + '/maploc/';  
 var szWMSserverRoot = szServerRoot + '/wms'; 
@@ -76,8 +81,9 @@ var oBaseLayer = new ol.layer.Tile({
     })
 });
 
-
-// Define OpenLayers vector layer - will overlay the base layer
+// The following declarations are to support the vector layer:
+//
+// Define OpenLayers vector layer - it will overlay the base layer
 //
 var oHighlightLayer = new ol.layer.Vector({source: new ol.source.Vector({ wrapX: false }) });
 
@@ -136,7 +142,7 @@ var createTextStyle = function(feature, resolution) {
   });
 };
 
-// Define function to style our polygon vector layer, and set the vector layer's style to use it
+// Define a function to style the polygon vector layer, and set the vector layer's style to use it
 function myVectorPolygonStyleFunction(feature, resolution) {
     return new ol.style.Style({ stroke: new ol.style.Stroke({ color: 'rgba(0,0,255,1.0)', width: 3.0}),
                                 fill:   new ol.style.Fill({ color: 'rgba(255,0,0,0.5)' }),
@@ -145,13 +151,12 @@ function myVectorPolygonStyleFunction(feature, resolution) {
 }
 oHighlightLayer.setStyle(myVectorPolygonStyleFunction);
 
-// The stuff to support the 'popup':
+// The following is to support the 'popup':
 //
 // Elements that make up the popup:
 var container = document.getElementById('popup');
 var content = document.getElementById('popup-content');
 var closer = document.getElementById('popup-closer');
-
 // Create an overlay to anchor the popup to the map:
 var overlay = new ol.Overlay({
   element: container,
@@ -160,8 +165,8 @@ var overlay = new ol.Overlay({
     duration: 250
   }
 });
-
-// Add a click handler to hide the popup:
+// Add an on-click handler to hide the popup
+// (This is no longer necessary)
 closer.onclick = function() {
   overlay.setPosition(undefined);
   closer.blur();
@@ -170,13 +175,16 @@ closer.onclick = function() {
 
 
 // Define OpenLayers map object
-// Noe that the vector layer appears after the base layer in the 'layers's array
+// Notes:
+//     1. the vector layer is listed after the base layer in the "layers" array,
+//        so that it will be rendered on top of the base layer
+//     2. the "overlay" is to support the on-hover popup for the vector layer
 //
 var map = new ol.Map({  target: 'map',
                         layers: [ oBaseLayer,
                                   oHighlightLayer
                                 ],
-                        overlays: [overlay],                        // Note: This is new.
+                        overlays: [overlay],
                         view: new ol.View({ projection: projection,
                                             center	: mapCenter,
                                             zoom	:mapZoom
@@ -185,6 +193,8 @@ var map = new ol.Map({  target: 'map',
                     
 
 // On 'pointermove' event handler for OL map object.
+// This function displays the "popup" when the mouse hovers over the vector layer.
+//
 // With thanks to:
 //     https://gis.stackexchange.com/questions/202473/openlayers3-add-click-hover-action-on-ol-layer-vector
 //     https://stackoverflow.com/questions/55743504/how-to-implement-feature-popups-in-openlayers-5-on-mouse-hover-and-click
@@ -216,7 +226,7 @@ map.on('pointermove', function(evt) {
         content.hidden = true;
         container.hidden = true;
     }
-});
+}); // end of OL map's on-pointermove handler
 
 
 // Issue WFS request for all towns in MassGIS TOWNSSURVEY_POLYM with
