@@ -1,8 +1,8 @@
 # open-layers-vector-layer-demo
 Demo of use of OpenLayers 'vector' map layer
 
-This demo uses the following external libraries:
-* OpenLayers version 6.1.0
+This demo uses the following external libraries, each of which is loaded from a CDN:
+* OpenLayers version 9.0.0
 * jQuery version 3.4.1
 
 Steps:
@@ -26,5 +26,14 @@ data layer to be added to vector layer
 6. Upon successful completion of WFS request, add the features
 returned by the WFS request to the vector layer
 
-B. Krepp, attending metaphysician  
-11 May 2020, 5 June 2020
+This demo relies upon the following layers published by the CTPS WFS:
+* postgis:ctps_oceanmask_poly_small
+* postgis:mgis_nemask_poly
+* postgis:mgis_townssurvey_polym  
+* postgis:ctps_ma_wo_model_area  
+
+The URL of the CTPS WFS is https://www.ctps.org/maploc/wfs
+
+Ben Krepp
+Date: 11 May 2020  
+Modified: 5 June 2020
